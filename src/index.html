@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>CSV processing</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css.map">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/index.css">
+  </head>
+  <body>
+    <div class="alert alert-primary" role="alert">
+      Please select a file.
+    </div>
+    </br>
+    <div class="container">
+      <input type="button" class="btn btn-primary" id="select-file" value="Select File"/>
+    </div>
+    </br>
+    <div class="container">
+      <div class="alert alert-success" role="alert" id="selectedFileMessage" style="display: none;"></div>
+    </div>
+    </br>
+    <div class="container">
+      <input type="button" class="btn btn-secondary" id="process" value="Process"/>
+    </div>
+
+
+    <div>
+      <span></span>
+    </div>
+  </body>
+
+  <script>
+    const bootstrap = require('bootstrap');
+    const fs = require('fs');
+    const { dialog } = require('electron').remote;
+    const { ipcRenderer } = require('electron');
+
+
+    // console.log(ipcRenderer.sendSync('synchronous-message', 'ping')); // prints "pong"
+    // ipcRenderer.on('asynchronous-reply', (event, arg) => {
+    //   console.log(arg); // prints "pong"
+    // })
+    // ipcRenderer.send('asynchronous-message', 'ping');
+
+    let selectedFile = null;
+
+    document.getElementById("select-file").addEventListener("click", () => {
+
+      dialog.showOpenDialog({
+        properties: ['openFile']
+      }).then(result => {
+        selectedFile = result.filePaths[0]; // result.filePaths returns an array
+        console.log(selectedFile);
+
+        document.getElementById("selectedFileMessage").style.display = 'block';
+        document.getElementById("selectedFileMessage").innerHTML = "Selected File: " + selectedFile;
+      }).catch(err => {
+        console.log(err)
+      });
+    }, false);
+
+    document.getElementById("process").addEventListener("click", () => {
+
+      if (selectedFile === null) {
+        dialog.showErrorBox("Error", "Please select a file first!"); 
+      } else {
+        // TODO: show a loading screen
+
+        ipcRenderer.send('asynchronous-process', selectedFile);
+      }
+    }, false);
+
+
+    // TODO: rename all there asynchronous-reply things to make the flow clear
+    ipcRenderer.on('asynchronous-reply', (event, arg) => {
+      // TODO: remove loading screen
+
+      dialog.showSaveDialog()
+      .then((result) => {
+        
+        if (result.canceled === true) {
+          alert("User clicked button, but didn't create a file.");
+          return;
+        }
+
+        let filePath = result.filePath;
+
+        fs.writeFile(filePath, arg, (err) => {
+          if (err) {
+            alert("Problem while writting file: " + err.message);
+            return;
+          }
+            
+          alert("File saved succesfully!");
+          
+        });
+      });
+    });
+
+  </script>
+</html>
