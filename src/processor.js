@@ -138,10 +138,10 @@ const doProcess = (jsonData) => {
     lineItems.forEach((line) => {
         // let d = new Date(line.StartDate);
         // TODO: why do this? we already have this data slash separated
-        // let arrstartdate = line.StartDate.split('-');
-        // let startdate = arrstartdate[1] + '/' + arrstartdate[2] + '/' + arrstartdate[0].substring(2);
+        arrstartdate = line.StartDate.split('/');
+        startdate = arrstartdate[1] + '/' + arrstartdate[0] + '/' + arrstartdate[2].substring(2, 4);
 
-        let startdate = line.StartDate
+        // let startdate = line.StartDate
         totalValue = 0;
 
         if (emp != line.externalid_employee) {
