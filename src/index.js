@@ -20,31 +20,23 @@ const createWindow = () => {
     }
   });
 
-  // and load the index.html of the app.
+  // Load the app frontend from index.html file.
   mainWindow.loadFile(path.join(__dirname, 'index.html'));
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
+  // Open the DevTools: comment on production!
+  // mainWindow.webContents.openDevTools();
 
-  // ipcMain.on('asynchronous-message', (event, arg) => {
-  //   console.log(arg) // prints "ping"
-  //   event.reply('asynchronous-reply', 'pong')
-  // });
-  // ipcMain.on('synchronous-message', (event, arg) => {
-  //   console.log(arg) // prints "ping"
-  //   event.returnValue = 'pong'
-  // });
-
-  ipcMain.on('asynchronous-process', (event, arg) => {
-    console.log("Processing file: " + arg)
-    processFile(arg, event);
+  // Receive process signal from frontend
+  ipcMain.on('asynchronous-process', (event, fileName, maxTotalLunchHours, weekHours) => {
+    processFile(event, fileName, maxTotalLunchHours, weekHours);
   });
 };
 
-const processFile = async (fileName, event) => {
+// Handle async reply from processor
+const processFile = async (event, fileName, maxTotalLunchHours, weekHours) => {
   let result;
   try {
-    result = await processor.processFile(fileName);
+    result = await processor.processSageFile(fileName, maxTotalLunchHours, weekHours);
   } catch (e) {
     return Promise.reject(e)
   }
@@ -73,6 +65,3 @@ app.on('activate', () => {
     createWindow();
   }
 });
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.

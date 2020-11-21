@@ -2,24 +2,10 @@ const fs = require('fs')
 const csvToJson = require('csvtojson');
 const Enumerable = require('linq');
 
-// TODO: this should be received as input, along with the file
-const maxTotalLunchHours = 1;
-const weekHours = 40;
-
-// const processFile = (fileName) => {
-//     return csvToJson().fromFile(fileName)
-//     .then(jsonData => {
-//         return doProcess(jsonData);
-//     }).catch(err => {
-//         // log error if any
-//         console.log(err);
-//     });
-// };
-
-const processFile = async (fileName) => {
+const processSageFile = async (fileName, maxTotalLunchHours, weekHours) => {
     try{
         const jsonData = await csvToJson().fromFile(fileName);
-        const result = doProcess(jsonData);
+        const result = doProcess(jsonData, maxTotalLunchHours, weekHours);
         return result;
     }catch(err){
         console.log(err);
@@ -27,7 +13,7 @@ const processFile = async (fileName) => {
     }
  }
 
-const doProcess = (jsonData) => {
+const doProcess = (jsonData, maxTotalLunchHours, weekHours) => {
     let grouped = Enumerable
         .from(jsonData)
         .where((element) => { 
@@ -184,8 +170,7 @@ const doProcess = (jsonData) => {
         emp = line.externalid_employee;
     });
 
-
     return stringLines;
 }
 
-exports.processFile = processFile;
+exports.processSageFile = processSageFile;
